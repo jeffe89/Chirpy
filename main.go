@@ -29,12 +29,12 @@ func main() {
 	fsHandler := apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))
 	mux.Handle("/app/", fsHandler)
 
-	// Register a handler function for the /healthz path
-	mux.HandleFunc("GET /healthz", handlerReadiness)
-	// Register a handler function for the /metrics path to display hit count
-	mux.HandleFunc("GET /metrics/", apiCfg.handlerMetrics)
+	// Register a handler function for the /healthz path to display status of server
+	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 	// Register a handler function for the /reset path to reset hit count
-	mux.HandleFunc("POST /reset", apiCfg.handlerReset)
+	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
+	// Register a handler function for the /metrics path to display hit count
+	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
 
 	// Create a new HTTP server struct
 	srv := &http.Server{
