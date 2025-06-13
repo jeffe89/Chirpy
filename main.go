@@ -80,12 +80,16 @@ func main() {
 	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
 	// Register a handler function for the /api/users path allowing users to be created
 	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
-	// Register a handler function for the /api/Chirps path to create chirps
+	// Register a handler function for the /api/users path allowing users to update their emails or passwords
+	mux.HandleFunc("PUT /api/users", apiCfg.handlerUsersUpdate)
+	// Register a handler function for the /api/chirps path to create chirps
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
-	// Register a handler function for the /api/Chirps path to retreive all chirps
+	// Register a handler function for the /api/chirps path to retreive all chirps
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerChirpsRetrieve)
-	// Register a handler function for the /api/Chirps path to retreive one specified chirp
+	// Register a handler function for the /api/chirps path to retreive one specified chirp
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerChirpsGet)
+	// Register a handler function for the /api/chirps/ path to delete a specific chirp
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.handlerChirpsDelete)
 
 	// *** ADMIN ***
 	// Register a handler function for the /admin/reset path to reset hit count

@@ -22,11 +22,13 @@ type User struct {
 
 // Handler function for creating a user in database
 func (cfg *apiConfig) handlerUsersCreate(w http.ResponseWriter, r *http.Request) {
+
 	// Struct to store JSON user email and password data
 	type parameters struct {
 		Password string `json:"password"`
 		Email    string `json:"email"`
 	}
+
 	// Struct to store response values for user
 	type response struct {
 		User
