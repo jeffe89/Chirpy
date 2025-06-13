@@ -17,6 +17,7 @@ type apiConfig struct {
 	fileserverHits atomic.Int32
 	db             *database.Queries
 	platform       string
+	jwtSecret      string
 }
 
 func main() {
@@ -40,6 +41,12 @@ func main() {
 		log.Fatal("PLATFORM must be set")
 	}
 
+	// Get jwtSecret from environment
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET environment variable is not set")
+	}
+
 	// Open a connection to database
 	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
@@ -52,6 +59,7 @@ func main() {
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
 		platform:       platform,
+		jwtSecret:      jwtSecret,
 	}
 
 	// Create a new http.ServeMux
@@ -64,6 +72,12 @@ func main() {
 	// *** API ***
 	// Register a handler function for the /api/healthz path to display status of server
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
+	// Register a handler function for the /api/login path to login a user with credentials
+	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
+	// Register a handler function for the /api/refresh path to refresh token
+	mux.HandleFunc("POST /api/refresh", apiCfg.handlerRefresh)
+	// Register a handler function for the /api/revoke path to revoke a token
+	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevoke)
 	// Register a handler function for the /api/users path allowing users to be created
 	mux.HandleFunc("POST /api/users", apiCfg.handlerUsersCreate)
 	// Register a handler function for the /api/Chirps path to create chirps
