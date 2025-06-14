@@ -28,7 +28,7 @@ func main() {
 	const port = "8080"
 
 	// Load .env file into environment variables
-	godotenv.Load()
+	godotenv.Load(".env")
 
 	// Get DB_URL from environment
 	dbURL := os.Getenv("DB_URL")
@@ -36,10 +36,17 @@ func main() {
 		log.Fatal("DB_URL must be set")
 	}
 
+	// Open a connection to database
+	dbConn, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatalf("Error opening database: %s", err)
+	}
+	dbQueries := database.New(dbConn)
+
 	// Get platform from environment
 	platform := os.Getenv("PLATFORM")
 	if platform == "" {
-		log.Fatal("PLATFORM must be set")
+		log.Fatal("ADMIN_KEY environment variable is not set")
 	}
 
 	// Get jwtSecret from environment
@@ -54,20 +61,13 @@ func main() {
 		log.Fatal("POLKA_KEY environment variable is not set")
 	}
 
-	// Open a connection to database
-	dbConn, err := sql.Open("postgres", dbURL)
-	if err != nil {
-		log.Fatalf("Error opening database: %s", err)
-	}
-	dbQueries := database.New(dbConn)
-
 	// Initialize an apiConfig struct
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
-		platform:       platform,
 		jwtSecret:      jwtSecret,
 		polkaKey:       polkaKey,
+		platform:       platform,
 	}
 
 	// Create a new http.ServeMux
@@ -114,7 +114,7 @@ func main() {
 	}
 
 	// Log information on files being served on particular port
-	log.Printf("Serving on port: %s\n", port)
+	log.Printf("Serving on: %s\n", port)
 	// Use servers ListenAndServe method to start server
 	log.Fatal(srv.ListenAndServe())
 }
