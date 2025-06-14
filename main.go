@@ -18,6 +18,7 @@ type apiConfig struct {
 	db             *database.Queries
 	platform       string
 	jwtSecret      string
+	polkaKey       string
 }
 
 func main() {
@@ -47,6 +48,12 @@ func main() {
 		log.Fatal("JWT_SECRET environment variable is not set")
 	}
 
+	// Get Polka API key from environment
+	polkaKey := os.Getenv("POLKA_KEY")
+	if polkaKey == "" {
+		log.Fatal("POLKA_KEY environment variable is not set")
+	}
+
 	// Open a connection to database
 	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
@@ -60,6 +67,7 @@ func main() {
 		db:             dbQueries,
 		platform:       platform,
 		jwtSecret:      jwtSecret,
+		polkaKey:       polkaKey,
 	}
 
 	// Create a new http.ServeMux
@@ -72,6 +80,8 @@ func main() {
 	// *** API ***
 	// Register a handler function for the /api/healthz path to display status of server
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
+	// Register a handler function for the /api/polka/webhooks to handle chirpy red upgrade
+	mux.HandleFunc("POST /api/polka/webhooks", apiCfg.handlerWebhook)
 	// Register a handler function for the /api/login path to login a user with credentials
 	mux.HandleFunc("POST /api/login", apiCfg.handlerLogin)
 	// Register a handler function for the /api/refresh path to refresh token
