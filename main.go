@@ -77,6 +77,11 @@ func main() {
 	fsHandler := apiCfg.middlewareMetricsInc(http.StripPrefix("/app", http.FileServer(http.Dir(filepathRoot))))
 	mux.Handle("/app/", fsHandler)
 
+	//  Setup file server handler for the http://localhost:8080/ path
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "index.html")
+	})
+
 	// *** API ***
 	// Register a handler function for the /api/healthz path to display status of server
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
