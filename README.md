@@ -30,7 +30,7 @@ chirpy/
 - Initializes dependencies like the database and logger.
 
 ### `metrics.go`
-- Exposes metrics (like uptime, memory usage) for monitoring.
+- Exposes metrics (hit count) for monitoring.
 
 ### `readiness.go`
 - Health and readiness probe handler for container orchestration systems.
